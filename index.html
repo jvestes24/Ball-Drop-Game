@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ball Drop Game</title>
+<link href="style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+		<div id="start">Welcome to Gravity Falls!<br/><br/>Hold the arrow keys to move the ball left and right to fall through the holes<br/><br/>Survive as long as you can to earn points<br/><br/><a id="go" class="button" href="#" >Start Game</a></div>
+		<div id="gameOver">You Died!<br/><br/>Your Score:&nbsp;<span id="counter">0</span><br/><br/><a id="retry" class="button" href="index.html">Play Again</a>
+	    <img id="troll" src="troll.png" alt="troll face" />
+		</div>
+		<div id="points">Score:&nbsp;<span id="score">0</span></div>
+		<div id="level">
+			<div id="ball">
+			</div>
+			
+		</div>
+	
+<script src="js/jquery-3.6.1.min.js"></script>
+<script type="text/javascript"><!--
+		$(document).ready(function(){
+		
+		$("#start").animate({
+			top:"+=330"
+		}, 1000);
+		
+		$("#start").animate().hover(function(){
+			$("#start").css("border", "5px solid #FFD100");
+		}, function(){
+			$("#start").css("border", "none");
+		});
+		
+		$("#gameOver").animate().hover(function(){
+			$("#gameOver").css("border", "5px solid #FFD100");
+			$("#troll").css("display", "block");
+		}, function(){
+			$("#gameOver").css("border", "none");
+			$("#troll").css("display", "none");
+		});
+		
+		$("a").animate().hover(function(){
+			$("a.button").css("background-color", "#000000");
+			$("a.button").css("color", "#ffffff");
+		}, function(){
+			$("a.button").css("background-color", "#FFD100");
+			$("a.button").css("color", "#000000");
+		});
+		
+		$("#go").click(function(event){
+			startGame();
+			
+			$("#level").css("display", "block");
+			$("#ball").css("display", "block");
+			$("#points").css("display", "block");
+			$("#start").css("top", "-250px");
+		});
+	});
+
+	function gameOver(){
+		
+				$("#level").css("display", "none");
+				$("#ball").css("display", "none");
+				$("#points").css("display", "none");
+				$("#gameOver").css("display", "block");
+				$("#gameOver").animate({
+			top:"-=610"
+		}, 500);	
+	}
+	
+		function startGame(){
+		var ball = document.getElementById("ball");
+		var level = document.getElementById("level");
+		var interval;
+		var both = 0;
+		var counter = 0;
+		var currentFloors = [];
+		function moveLeft(){
+			var left = parseInt(window.getComputedStyle(ball).getPropertyValue("left"));
+			if(left>0){
+			ball.style.left =  left - 2 + "px";
+			}
+		}
+		
+		function moveRight(){
+			var left = parseInt(window.getComputedStyle(ball).getPropertyValue("left"));
+			if(left<380){
+			ball.style.left =  left + 2 + "px";
+			}
+		}
+		
+		document.addEventListener("keydown", event => {
+			if(both==0){
+				both++;
+				if(event.key==="ArrowLeft"){
+				interval = setInterval(moveLeft, 1);
+				}
+				if(event.key==="ArrowRight"){
+				interval = setInterval(moveRight, 1);
+				}
+				
+			}
+		});
+		
+		document.addEventListener("keyup", event =>{
+			clearInterval(interval);
+			both=0;
+		});
+		
+		    var floors = setInterval(function(){
+			var floorLast = document.getElementById("floor"+(counter-1));
+			var gapLast = document.getElementById("gap"+(counter-1));
+			if(counter>0){
+			var floorLastTop = parseInt(window.getComputedStyle(floorLast).getPropertyValue("top"));
+			var gapLastTop   = parseInt(window.getComputedStyle(gapLast).getPropertyValue("top"));
+			}
+			if(floorLastTop<400||counter==0){
+			var floor = document.createElement("div");
+			var gap = document.createElement("div");
+			floor.setAttribute("class", "floor");
+			gap.setAttribute("class", "gap");
+			floor.setAttribute("id", "floor"+counter);
+			gap.setAttribute("id", "gap"+counter);
+			floor.style.top = floorLastTop + 100 + "px";
+			gap.style.top = gapLastTop + 100 + "px";
+			var random = Math.floor(Math.random() * 360);
+			gap.style.left = random + "px";
+			level.appendChild(floor);
+			level.appendChild(gap);
+			currentFloors.push(counter);
+			counter++;
+			document.getElementById("counter").innerText = counter-6;
+			document.getElementById("score").innerText = counter-6;
+			}
+			var ballTop = parseInt(window.getComputedStyle(ball).getPropertyValue("top"));
+			var ballLeft = parseInt(window.getComputedStyle(ball).getPropertyValue("left"));
+			var drop = 0;
+			if(ballTop <=0){
+				clearInterval(floors);
+				gameOver();
+			}
+			
+			
+			for(var i =0; i < currentFloors.length;i++){
+				let current = currentFloors[i];
+				let ifloor = document.getElementById("floor"+current);
+				let igap = document.getElementById("gap"+current);
+				let ifloorTop =	parseFloat(window.getComputedStyle(ifloor).getPropertyValue("top"));
+				let igapLeft =	parseFloat(window.getComputedStyle(igap).getPropertyValue("left"));
+				ifloor.style.top = ifloorTop - 0.73 + "px";
+				igap.style.top = ifloorTop - 0.73 + "px";
+				if(ifloorTop < 0) {
+					currentFloors.shift();
+					ifloor.remove();
+					igap.remove();
+				}
+				if(ifloorTop-20<ballTop && ifloorTop>ballTop){
+					drop++;
+					if(igapLeft<=ballLeft && igapLeft+20>=ballLeft){
+						drop = 0;
+					}
+				}
+			}
+			
+			if(drop==0){
+				if(ballTop < 480){
+					
+				ball.style.top = ballTop + 2 +"px";
+				}
+			}else{
+				ball.style.top = ballTop - 0.5 + "px";
+			}
+		},1);
+		
+	}
+	
+--></script>
+</body>
+</html>
